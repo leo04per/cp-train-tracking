@@ -1,5 +1,6 @@
 from typing import Any
 import httpx
+import json
 from mcp.server.fastmcp import FastMCP
 
 # Inicializa o servidor MCP
@@ -158,21 +159,21 @@ async def add_favorite_station(station: str) -> str:
             
         # Read current favorites list
         try:
-            with open("favorite_stations.txt", "r") as f:
-                favorites = f.read().splitlines()
+            with open("favorite_stations.json", "r") as f:
+                favorites = json.load(f)
         except FileNotFoundError:
-            favorites = []
+            favorites = {"stations": []}
             
         # Check if station is already in favorites
-        if station in favorites:
+        if station in favorites["stations"]:
             return f"Station {station} is already in favorites."
             
         # Add station to favorites
-        favorites.append(station)
+        favorites["stations"].append(station)
         
         # Save updated list
-        with open("favorite_stations.txt", "w") as f:
-            f.write("\n".join(favorites))
+        with open("favorite_stations.json", "w") as f:
+            json.dump(favorites, f, indent=4)
             
         return f"Station {station} added to favorites."
         
@@ -189,21 +190,21 @@ async def remove_favorite_station(station: str) -> str:
     try:
         # Read current favorites list
         try:
-            with open("favorite_stations.txt", "r") as f:
-                favorites = f.read().splitlines()
+            with open("favorite_stations.json", "r") as f:
+                favorites = json.load(f)
         except FileNotFoundError:
             return "No favorite stations found."
             
         # Check if station is in favorites
-        if station not in favorites:
+        if station not in favorites["stations"]:
             return f"Station {station} is not in favorites."
             
         # Remove station from favorites
-        favorites.remove(station)
+        favorites["stations"].remove(station)
         
         # Save updated list
-        with open("favorite_stations.txt", "w") as f:
-            f.write("\n".join(favorites))
+        with open("favorite_stations.json", "w") as f:
+            json.dump(favorites, f, indent=4)
             
         return f"Station {station} removed from favorites."
         
@@ -216,16 +217,16 @@ async def get_favorite_stations() -> str:
     try:
         # Read favorites list
         try:
-            with open("favorite_stations.txt", "r") as f:
-                favorites = f.read().splitlines()
+            with open("favorite_stations.json", "r") as f:
+                favorites = json.load(f)
         except FileNotFoundError:
             return "No favorite stations found."
             
-        if not favorites:
+        if not favorites["stations"]:
             return "No favorite stations found."
             
         # Format stations list
-        stations_list = "\n".join([f"- {station}" for station in favorites])
+        stations_list = "\n".join([f"- {station}" for station in favorites["stations"]])
         return f"Favorite stations:\n{stations_list}"
         
     except Exception as e:
