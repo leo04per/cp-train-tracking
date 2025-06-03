@@ -113,8 +113,7 @@ async def consultar_comboios(estacao: str) -> str:
     
     try:
         station_id = await get_station_id(estacao)
-        station_id = str(station_id)
-        station_id = f"{station_id[:2]}-{station_id[2:].lstrip('0')}"
+        station_id = str(f"{station_id[:2]}-{station_id[2:].lstrip('0')}")
         data = await get_train_schedule(station_id)
 
         if not data:
