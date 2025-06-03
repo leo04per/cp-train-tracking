@@ -137,13 +137,13 @@ async def train_query(station: str, station_id: str = None) -> str:
                 delay = "0"
 
             info = (
-                f"Comboio {number} ({type})\n"
-                f"De: {origin} → Para: {destination}\n"
-                f"Partida: {departure} — arrival: {arrival} | platform: {platform} | delay: {delay}"
+                f"Train {number} ({type})\n"
+                f"From: {origin} → To: {destination}\n"
+                f"Departure: {departure} — arrival: {arrival} | platform: {platform} | delay: {delay}"
             )
             trains.append(info)
 
-        return f"trains em {station}:\n\n" + "\n\n---\n\n".join(trains) + "\n\n"
+        return f"Trains in {station}:\n\n" + "\n\n---\n\n".join(trains) + "\n\n"
 
     except Exception as e:
         return f"Error getting data: {str(e)}"
