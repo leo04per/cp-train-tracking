@@ -23,7 +23,7 @@ HEADERS = {
 
 async def get_station_id(station_name: str) -> str:
 
-    """Consulta o NodeID da estação via Infraestruturas de Portugal."""
+    """Query the station NodeID via Infraestruturas de Portugal."""
     
     url = f"https://www.infraestruturasdeportugal.pt/negocios-e-servicos/estacao-nome/{station_name}"
 
@@ -69,7 +69,7 @@ async def get_station_id(station_name: str) -> str:
 
 async def get_train_schedule(station_id: str) -> Any:
 
-    """Consulta os comboios que passam por uma estação CP."""
+    """Query the trains that pass through a station in CP."""
     
     url = f"https://www.cp.pt/sites/spring/station/trains?stationId={station_id}"
     
@@ -101,44 +101,44 @@ async def get_train_schedule(station_id: str) -> Any:
 
 
 @mcp.tool()
-async def consultar_comboios(estacao: str) -> str:
+async def train_query(station: str) -> str:
     
-    """Consulta os comboios que passam por uma estação em Portugal.
+    """Query the trains that pass through a station in Portugal.
 
     Args:
-        estacao: Nome da estação (ex: Porto-Campanhã, Lisboa Oriente)
+        station: Station name (ex: Porto-Campanhã, Lisboa Oriente)
     """
     
     try:
-        station_id = await get_station_id(estacao)
+        station_id = await get_station_id(station)
         station_id = str(f"{station_id[:2]}-{station_id[2:].lstrip('0')}")
         data = await get_train_schedule(station_id)
 
         if not data:
-            return f"No information available for {estacao}."
+            return f"No information available for {station}."
 
-        comboios = []
+        trains = []
         for train in data:
-            atraso = train.get("delay")
-            origem = train.get("trainOrigin", {}).get("designation", "Origem desconhecida")
-            destino = train.get("trainDestination", {}).get("designation", "Destino desconhecido")
-            partida = train.get("departureTime", "??:??")
-            chegada = train.get("arrivalTime", "??:??")
-            numero = train.get("trainNumber", "N/A")
-            tipo = train.get("trainService", {}).get("designation", "Tipo desconhecido")
-            plataforma = train.get("platform", "—")
+            delay = train.get("delay")
+            origin = train.get("trainOrigin", {}).get("designation", "origin unknown")
+            destination = train.get("trainDestination", {}).get("designation", "destination unknown")
+            departure = train.get("departureTime", "??:??")
+            arrival = train.get("arrivalTime", "??:??")
+            number = train.get("trainNumber", "N/A")
+            type = train.get("trainService", {}).get("designation", "type unknown")
+            platform = train.get("platform", "—")
 
-            if atraso is None:
-                atraso = "0"
+            if delay is None:
+                delay = "0"
 
             info = (
-                f"Comboio {numero} ({tipo})\n"
-                f"De: {origem} → Para: {destino}\n"
-                f"Partida: {partida} — Chegada: {chegada} | Plataforma: {plataforma} | Atraso: {atraso}"
+                f"Comboio {number} ({type})\n"
+                f"De: {origin} → Para: {destination}\n"
+                f"Partida: {departure} — arrival: {arrival} | platform: {platform} | delay: {delay}"
             )
-            comboios.append(info)
+            trains.append(info)
 
-        return f"Comboios em {estacao}:\n\n" + "\n\n---\n\n".join(comboios) + "\n\n"
+        return f"trains em {station}:\n\n" + "\n\n---\n\n".join(trains) + "\n\n"
 
     except Exception as e:
         return f"Error getting data: {str(e)}"
@@ -146,14 +146,14 @@ async def consultar_comboios(estacao: str) -> str:
 
 
 if __name__ == "__main__":
-    import asyncio
+    '''import asyncio
     
     async def test_consulta():
-        resultado = await consultar_comboios("Porto-Campanhã")
-        print("\nResultado do teste:")
+        resultado = await train_query("Porto-Campanhã")
+        print("\nTest result:")
         print(resultado)
     
     # Executa o teste
-    asyncio.run(test_consulta())
+    asyncio.run(test_consulta())'''
     mcp.run(transport="stdio")
 
