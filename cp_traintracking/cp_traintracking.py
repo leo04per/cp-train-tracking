@@ -36,7 +36,6 @@ async def get_station_id(station_name: str) -> str:
             try:
                 data = response.json()
             except ValueError as e:
-                print(f"Error decoding JSON: {str(e)}")
                 raise ValueError(f"Invalid response from API for station {station_name}")
 
             # Verify if data is a list or dictionary
@@ -54,7 +53,6 @@ async def get_station_id(station_name: str) -> str:
 
             # Search for the station
             for station in stations:
-                print(f"Checking station: {station}")
                 if isinstance(station, dict) and station_name.lower() in station.get("Nome", "").lower():
                     node_id = str(station.get("NodeID"))
                     return node_id
@@ -121,6 +119,7 @@ async def consultar_comboios(estacao: str) -> str:
 
         comboios = []
         for train in data:
+            atraso = train.get("delay")
             origem = train.get("trainOrigin", {}).get("designation", "Origem desconhecida")
             destino = train.get("trainDestination", {}).get("designation", "Destino desconhecido")
             partida = train.get("departureTime", "??:??")
@@ -129,14 +128,17 @@ async def consultar_comboios(estacao: str) -> str:
             tipo = train.get("trainService", {}).get("designation", "Tipo desconhecido")
             plataforma = train.get("platform", "—")
 
+            if atraso is None:
+                atraso = "0"
+
             info = (
                 f"Comboio {numero} ({tipo})\n"
                 f"De: {origem} → Para: {destino}\n"
-                f"Partida: {partida} — Chegada: {chegada} | Plataforma: {plataforma}"
+                f"Partida: {partida} — Chegada: {chegada} | Plataforma: {plataforma} | Atraso: {atraso}"
             )
             comboios.append(info)
 
-        return f"Comboios em {estacao}:\n\n" + "\n\n---\n\n".join(comboios)
+        return f"Comboios em {estacao}:\n\n" + "\n\n---\n\n".join(comboios) + "\n\n"
 
     except Exception as e:
         return f"Error getting data: {str(e)}"
@@ -144,5 +146,14 @@ async def consultar_comboios(estacao: str) -> str:
 
 
 if __name__ == "__main__":
+    import asyncio
+    
+    async def test_consulta():
+        resultado = await consultar_comboios("Porto-Campanhã")
+        print("\nResultado do teste:")
+        print(resultado)
+    
+    # Executa o teste
+    asyncio.run(test_consulta())
     mcp.run(transport="stdio")
 
