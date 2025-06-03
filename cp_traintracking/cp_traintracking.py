@@ -143,6 +143,93 @@ async def train_query(station: str) -> str:
     except Exception as e:
         return f"Error getting data: {str(e)}"
 
+@mcp.tool()
+async def add_favorite_station(station: str) -> str:
+    """Adds a station to the favorites list.
+    
+    Args:
+        station: Name of the station to add
+    """
+    try:
+        # Check if station exists
+        station_id = await get_station_id(station)
+        if not station_id:
+            return f"Station {station} not found."
+            
+        # Read current favorites list
+        try:
+            with open("favorite_stations.txt", "r") as f:
+                favorites = f.read().splitlines()
+        except FileNotFoundError:
+            favorites = []
+            
+        # Check if station is already in favorites
+        if station in favorites:
+            return f"Station {station} is already in favorites."
+            
+        # Add station to favorites
+        favorites.append(station)
+        
+        # Save updated list
+        with open("favorite_stations.txt", "w") as f:
+            f.write("\n".join(favorites))
+            
+        return f"Station {station} added to favorites."
+        
+    except Exception as e:
+        return f"Error adding station: {str(e)}"
+
+@mcp.tool()
+async def remove_favorite_station(station: str) -> str:
+    """Removes a station from the favorites list.
+    
+    Args:
+        station: Name of the station to remove
+    """
+    try:
+        # Read current favorites list
+        try:
+            with open("favorite_stations.txt", "r") as f:
+                favorites = f.read().splitlines()
+        except FileNotFoundError:
+            return "No favorite stations found."
+            
+        # Check if station is in favorites
+        if station not in favorites:
+            return f"Station {station} is not in favorites."
+            
+        # Remove station from favorites
+        favorites.remove(station)
+        
+        # Save updated list
+        with open("favorite_stations.txt", "w") as f:
+            f.write("\n".join(favorites))
+            
+        return f"Station {station} removed from favorites."
+        
+    except Exception as e:
+        return f"Error removing station: {str(e)}"
+
+@mcp.tool()
+async def get_favorite_stations() -> str:
+    """Returns the list of favorite stations."""
+    try:
+        # Read favorites list
+        try:
+            with open("favorite_stations.txt", "r") as f:
+                favorites = f.read().splitlines()
+        except FileNotFoundError:
+            return "No favorite stations found."
+            
+        if not favorites:
+            return "No favorite stations found."
+            
+        # Format stations list
+        stations_list = "\n".join([f"- {station}" for station in favorites])
+        return f"Favorite stations:\n{stations_list}"
+        
+    except Exception as e:
+        return f"Error getting favorite stations: {str(e)}"
 
 
 if __name__ == "__main__":
