@@ -102,17 +102,21 @@ async def get_train_schedule(station_id: str) -> Any:
 
 
 @mcp.tool()
-async def train_query(station: str) -> str:
+async def train_query(station: str, station_id: str = None) -> str:
     
     """Query the trains that pass through a station in Portugal.
 
     Args:
         station: Station name (ex: Porto-Campanhã, Lisboa Oriente)
+        station_id: Optional station ID from favorites list
     """
     
     try:
-        station_id = await get_station_id(station)
+        if not station_id:
+            station_id = await get_station_id(station)
+            
         station_id = str(f"{station_id[:2]}-{station_id[2:].lstrip('0')}")
+        
         data = await get_train_schedule(station_id)
 
         if not data:
@@ -169,7 +173,7 @@ async def add_favorite_station(station: str) -> str:
             return f"Station {station} is already in favorites."
             
         # Add station to favorites
-        favorites["stations"].append(station)
+        favorites["stations"].append({"station_id": station_id, "station_name": station})
         
         # Save updated list
         with open("favorite_stations.json", "w") as f:
@@ -187,6 +191,7 @@ async def remove_favorite_station(station: str) -> str:
     Args:
         station: Name of the station to remove
     """
+    
     try:
         # Read current favorites list
         try:
@@ -196,12 +201,16 @@ async def remove_favorite_station(station: str) -> str:
             return "No favorite stations found."
             
         # Check if station is in favorites
-        if station not in favorites["stations"]:
+        station_found = False
+        for fav_station in favorites["stations"]:
+            if isinstance(fav_station, dict) and fav_station.get("station_name") == station:
+                favorites["stations"].remove(fav_station)
+                station_found = True
+                break
+                
+        if not station_found:
             return f"Station {station} is not in favorites."
             
-        # Remove station from favorites
-        favorites["stations"].remove(station)
-        
         # Save updated list
         with open("favorite_stations.json", "w") as f:
             json.dump(favorites, f, indent=4)
@@ -226,7 +235,7 @@ async def get_favorite_stations() -> str:
             return "No favorite stations found."
             
         # Format stations list
-        stations_list = "\n".join([f"- {station}" for station in favorites["stations"]])
+        stations_list = "\n".join([f"- {station['station_name']} - {station['station_id']}" for station in favorites["stations"]])
         return f"Favorite stations:\n{stations_list}"
         
     except Exception as e:
@@ -234,14 +243,5 @@ async def get_favorite_stations() -> str:
 
 
 if __name__ == "__main__":
-    '''import asyncio
-    
-    async def test_consulta():
-        resultado = await train_query("Porto-Campanhã")
-        print("\nTest result:")
-        print(resultado)
-    
-    # Executa o teste
-    asyncio.run(test_consulta())'''
     mcp.run(transport="stdio")
 
