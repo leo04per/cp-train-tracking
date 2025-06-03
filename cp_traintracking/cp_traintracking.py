@@ -22,67 +22,57 @@ HEADERS = {
 
 
 async def get_station_id(station_name: str) -> str:
+
     """Consulta o NodeID da estação via Infraestruturas de Portugal."""
+    
     url = f"https://www.infraestruturasdeportugal.pt/negocios-e-servicos/estacao-nome/{station_name}"
 
     async with httpx.AsyncClient() as client:
-        try:
-            print(f"Fazendo requisição para: {url}")
-            print(f"Headers utilizados: {HEADERS}")
-            
+        try:            
             response = await client.get(url, headers=HEADERS)
             response.raise_for_status()
             
-            print(f"Status code: {response.status_code}")
-            print(f"Resposta bruta: {response.text[:500]}...")  # Primeiros 500 caracteres
-            
-            # Verifica se a resposta é JSON válido
+            # Verify if the response is a valid JSON
             try:
                 data = response.json()
-                print(f"Tipo de dados recebido: {type(data)}")
-                print(f"Dados recebidos: {data}")
             except ValueError as e:
-                print(f"Erro ao decodificar JSON: {str(e)}")
-                raise ValueError(f"Resposta inválida da API para a estação {station_name}")
+                print(f"Error decoding JSON: {str(e)}")
+                raise ValueError(f"Invalid response from API for station {station_name}")
 
-            # Verifica se data é uma lista ou dicionário
+            # Verify if data is a list or dictionary
             if not isinstance(data, (list, dict)):
-                print(f"Formato inesperado: {type(data)}")
-                raise ValueError(f"Formato de resposta inválido para a estação {station_name}")
+                raise ValueError(f"Invalid response format for station {station_name}")
 
-            # Se for um dicionário, procura a chave 'response'
+            # If it's a dictionary, search for the 'response' key
             if isinstance(data, dict):
                 stations = data.get("response", [])
-                print(f"Estacoes encontradas no dicionário: {stations}")
             else:
                 stations = data
-                print(f"Estacoes encontradas na lista: {stations}")
 
             if not stations:
-                raise ValueError(f"Nenhuma estação encontrada com o nome {station_name}")
+                raise ValueError(f"No station found with the name {station_name}")
 
-            # Procura a estação
+            # Search for the station
             for station in stations:
-                print(f"Verificando estação: {station}")
+                print(f"Checking station: {station}")
                 if isinstance(station, dict) and station_name.lower() in station.get("Nome", "").lower():
                     node_id = str(station.get("NodeID"))
-                    print(f"Estação encontrada! NodeID: {node_id}")
                     return node_id
 
-            raise ValueError(f"Estação {station_name} não encontrada.")
+            raise ValueError(f"Station {station_name} not found.")
 
         except httpx.HTTPError as e:
-            print(f"Erro HTTP: {str(e)}")
-            raise ValueError(f"Erro ao acessar a API: {str(e)}")
+            raise ValueError(f"Error accessing the API: {str(e)}")
         except ValueError as e:
             raise e
         except Exception as e:
-            print(f"Erro inesperado: {str(e)}")
-            raise ValueError(f"Erro inesperado: {str(e)}")
+            raise ValueError(f"Unexpected error: {str(e)}")
 
 
 async def get_train_schedule(station_id: str) -> Any:
+
     """Consulta os comboios que passam por uma estação CP."""
+    
     url = f"https://www.cp.pt/sites/spring/station/trains?stationId={station_id}"
     
     headers = {
@@ -109,22 +99,26 @@ async def get_train_schedule(station_id: str) -> Any:
                 
             return data
         except Exception as e:
-            raise ValueError(f"Erro ao obter horários: {str(e)}")
+            raise ValueError(f"Error getting schedules: {str(e)}")
 
 
 @mcp.tool()
 async def consultar_comboios(estacao: str) -> str:
+    
     """Consulta os comboios que passam por uma estação em Portugal.
 
     Args:
         estacao: Nome da estação (ex: Porto-Campanhã, Lisboa Oriente)
     """
+    
     try:
         station_id = await get_station_id(estacao)
+        station_id = str(station_id)
+        station_id = f"{station_id[:2]}-{station_id[2:].lstrip('0')}"
         data = await get_train_schedule(station_id)
 
         if not data:
-            return f"Nenhuma informação disponível para {estacao}."
+            return f"No information available for {estacao}."
 
         comboios = []
         for train in data:
@@ -146,7 +140,7 @@ async def consultar_comboios(estacao: str) -> str:
         return f"Comboios em {estacao}:\n\n" + "\n\n---\n\n".join(comboios)
 
     except Exception as e:
-        return f"Erro ao obter dados: {str(e)}"
+        return f"Error getting data: {str(e)}"
 
 
 
