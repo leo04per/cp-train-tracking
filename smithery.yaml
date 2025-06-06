@@ -7,7 +7,6 @@ authors:
   - Leonardo Pereira
   - Daniel Silva
 license: MIT 
-=======
 # Smithery configuration file: https://smithery.ai/docs/build/project-config
 
 startCommand:
