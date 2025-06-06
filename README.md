@@ -1,4 +1,5 @@
 # 🚆 CP TrainTracking ChatBot
+[![smithery badge](https://smithery.ai/badge/@leo04per/cp_traintracking_chatbot)](https://smithery.ai/server/@leo04per/cp_traintracking_chatbot)
 
 Este projeto é um **servidor MCP (Middleware de Comunicação Preditiva)** que funciona como *wrapper* para APIs públicas da **CP - Comboios de Portugal** e das **Infraestruturas de Portugal**.
 
@@ -32,6 +33,16 @@ Este projeto foi desenvolvido por:
 - uv
 
 ## Instalação
+
+### Installing via Smithery
+
+To install cp_traintracking_chatbot for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@leo04per/cp_traintracking_chatbot):
+
+```bash
+npx -y @smithery/cli install @leo04per/cp_traintracking_chatbot --client claude
+```
+
+### Manual Installation
 
 1. Clone o repositório:
 ```bash
@@ -98,4 +109,3 @@ uv run .\cp_traintracking.py
 │   └── cp_traintracking.py
 └── README.md
 ```
-
