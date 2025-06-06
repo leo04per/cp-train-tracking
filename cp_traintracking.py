@@ -1,5 +1,6 @@
 from typing import Any
 import httpx
+import json
 from mcp.server.fastmcp import FastMCP
 
 # Inicializa o servidor MCP
@@ -101,17 +102,21 @@ async def get_train_schedule(station_id: str) -> Any:
 
 
 @mcp.tool()
-async def train_query(station: str) -> str:
+async def train_query(station: str, station_id: str = None) -> str:
     
     """Query the trains that pass through a station in Portugal.
 
     Args:
         station: Station name (ex: Porto-Campanhã, Lisboa Oriente)
+        station_id: Optional station ID from favorites list
     """
     
     try:
-        station_id = await get_station_id(station)
+        if not station_id:
+            station_id = await get_station_id(station)
+            
         station_id = str(f"{station_id[:2]}-{station_id[2:].lstrip('0')}")
+        
         data = await get_train_schedule(station_id)
 
         if not data:
@@ -132,28 +137,111 @@ async def train_query(station: str) -> str:
                 delay = "0"
 
             info = (
-                f"Comboio {number} ({type})\n"
-                f"De: {origin} → Para: {destination}\n"
-                f"Partida: {departure} — arrival: {arrival} | platform: {platform} | delay: {delay}"
+                f"Train {number} ({type})\n"
+                f"From: {origin} → To: {destination}\n"
+                f"Departure: {departure} — arrival: {arrival} | platform: {platform} | delay: {delay}"
             )
             trains.append(info)
 
-        return f"trains em {station}:\n\n" + "\n\n---\n\n".join(trains) + "\n\n"
+        return f"Trains in {station}:\n\n" + "\n\n---\n\n".join(trains) + "\n\n"
 
     except Exception as e:
         return f"Error getting data: {str(e)}"
 
+@mcp.tool()
+async def add_favorite_station(station: str) -> str:
+    """Adds a station to the favorites list.
+    
+    Args:
+        station: Name of the station to add
+    """
+    try:
+        # Check if station exists
+        station_id = await get_station_id(station)
+        if not station_id:
+            return f"Station {station} not found."
+            
+        # Read current favorites list
+        try:
+            with open("favorite_stations.json", "r") as f:
+                favorites = json.load(f)
+        except FileNotFoundError:
+            favorites = {"stations": []}
+            
+        # Check if station is already in favorites
+        if station in favorites["stations"]:
+            return f"Station {station} is already in favorites."
+            
+        # Add station to favorites
+        favorites["stations"].append({"station_id": station_id, "station_name": station})
+        
+        # Save updated list
+        with open("favorite_stations.json", "w") as f:
+            json.dump(favorites, f, indent=4)
+            
+        return f"Station {station} added to favorites."
+        
+    except Exception as e:
+        return f"Error adding station: {str(e)}"
+
+@mcp.tool()
+async def remove_favorite_station(station: str) -> str:
+    """Removes a station from the favorites list.
+    
+    Args:
+        station: Name of the station to remove
+    """
+    
+    try:
+        # Read current favorites list
+        try:
+            with open("favorite_stations.json", "r") as f:
+                favorites = json.load(f)
+        except FileNotFoundError:
+            return "No favorite stations found."
+            
+        # Check if station is in favorites
+        station_found = False
+        for fav_station in favorites["stations"]:
+            if isinstance(fav_station, dict) and fav_station.get("station_name") == station:
+                favorites["stations"].remove(fav_station)
+                station_found = True
+                break
+                
+        if not station_found:
+            return f"Station {station} is not in favorites."
+            
+        # Save updated list
+        with open("favorite_stations.json", "w") as f:
+            json.dump(favorites, f, indent=4)
+            
+        return f"Station {station} removed from favorites."
+        
+    except Exception as e:
+        return f"Error removing station: {str(e)}"
+
+@mcp.tool()
+async def get_favorite_stations() -> str:
+    """Returns the list of favorite stations."""
+    try:
+        # Read favorites list
+        try:
+            with open("favorite_stations.json", "r") as f:
+                favorites = json.load(f)
+        except FileNotFoundError:
+            return "No favorite stations found."
+            
+        if not favorites["stations"]:
+            return "No favorite stations found."
+            
+        # Format stations list
+        stations_list = "\n".join([f"- {station['station_name']} - {station['station_id']}" for station in favorites["stations"]])
+        return f"Favorite stations:\n{stations_list}"
+        
+    except Exception as e:
+        return f"Error getting favorite stations: {str(e)}"
 
 
 if __name__ == "__main__":
-    '''import asyncio
-    
-    async def test_consulta():
-        resultado = await train_query("Porto-Campanhã")
-        print("\nTest result:")
-        print(resultado)
-    
-    # Executa o teste
-    asyncio.run(test_consulta())'''
     mcp.run(transport="stdio")
 
