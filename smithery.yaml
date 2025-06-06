@@ -1,0 +1,9 @@
+name: cp-traintracking
+description: MCP Server para rastreio dos Comboios Portugal
+version: 0.1.0
+entrypoint: uv run cp_traintracking.py
+language: python
+authors:
+  - Leonardo Pereira
+  - Daniel Silva
+license: MIT 
