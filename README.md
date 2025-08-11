@@ -1,7 +1,7 @@
 # 🚆 CP TrainTracking ChatBot
 [![smithery badge](https://smithery.ai/badge/@leo04per/cp-train-tracking)](https://smithery.ai/server/@leo04per/cp-train-tracking)
 
-Este projeto é um **servidor MCP (Middleware de Comunicação Preditiva)** que funciona como *wrapper* para APIs públicas da **CP - Comboios de Portugal** e das **Infraestruturas de Portugal**.
+Este projeto é um **servidor MCP ** que funciona como *wrapper* para APIs públicas da **CP - Comboios de Portugal** e das **Infraestruturas de Portugal**.
 
 ## 🎯 Objetivo
 
@@ -36,18 +36,18 @@ Este projeto foi desenvolvido por:
 
 ### Installing via Smithery
 
-To install cp_traintracking_chatbot for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@leo04per/cp_traintracking_chatbot):
+To install cp_traintracking_chatbot for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@leo04per/cp-train-tracking):
 
 ```bash
-npx -y @smithery/cli install @leo04per/cp_traintracking_chatbot --client claude
+npx -y @smithery/cli@latest install @leo04per/cp-train-tracking --client claude
 ```
 
 ### Manual Installation
 1. Clone o repositório:
 ```bash
 git clone [URL_DO_REPOSITÓRIO]
-cd CP_TrainTracking_ChatBot
-cd cp_traintracking
+cd cp-train-tracking
+cd cp-train-tracking
 ```
 
 2. Instale uv para gerir os pacotes python
@@ -80,7 +80,7 @@ uv run .\cp_traintracking.py
 ## Uso no Claude Desktop
 1. Instalação Claude Desktop https://claude.ai/download
 
-2. ```Arquivo/Configurações/Desenvolvedor``` e clicar em ```Editar Configurações```
+2. ```Ficheiro/Configurações/Desenvolvedor``` e clicar em ```Editar Configurações```
 
 3. Inserir as configurações do servidor MCP no ```claude_desktop_config.json```
 ```json
