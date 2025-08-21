@@ -1,4 +1,4 @@
-# 🚆 CP TrainTracking ChatBot
+ 🚆 CP TrainTracking ChatBot
 [![smithery badge](https://smithery.ai/badge/@leo04per/cp-train-tracking)](https://smithery.ai/server/@leo04per/cp-train-tracking)
 
 Este projeto é um **servidor MCP ** que funciona como *wrapper* para APIs públicas da **CP - Comboios de Portugal**
@@ -19,6 +19,10 @@ Este wrapper expõe uma API simplificada, mais acessível e útil para o utiliza
 - Conversão de linguagem natural em queries estruturadas
 - Respostas informativas e contextuais para utilizadores finais
 - Compatibilidade com clientes MCP
+
+## 🔗 Arquitetura de Integração
+
+ <img width="1581" height="411" alt="Tenho um servidor mcp que faz wrapp api dos com (1)" src="https://github.com/user-attachments/assets/a86fae79-a6e1-46bc-a648-6797346bce4f" />
 
 ## 🧑‍💻 Autores
 
